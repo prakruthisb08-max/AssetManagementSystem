@@ -1,0 +1,3 @@
+Executed SQL Statement : create database `AssetManagementDB` 
+Error Number : 1007 
+Error Message: Can't create database 'assetmanagementdb'; database exists 

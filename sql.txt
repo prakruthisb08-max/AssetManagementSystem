@@ -1,0 +1,421 @@
+-- ============================================================
+-- IT ASSET MANAGEMENT SYSTEM
+-- COMPLETE MYSQL DATABASE SCHEMA
+-- SQLyog / MySQL
+-- ============================================================
+
+-- ============================================================
+-- 1. CREATE DATABASE
+-- ============================================================
+
+CREATE DATABASE IF NOT EXISTS AssetManagementDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE AssetManagementDB;
+
+
+-- ============================================================
+-- 2. REMOVE OLD TABLES
+-- ============================================================
+
+DROP TABLE IF EXISTS assets;
+DROP TABLE IF EXISTS users;
+
+
+-- ============================================================
+-- 3. USERS TABLE
+-- ============================================================
+
+CREATE TABLE users
+(
+    staff_id VARCHAR(50) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    password_value VARCHAR(50) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (staff_id)
+
+)
+ENGINE=INNODB
+DEFAULT CHARACTER SET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+
+-- ============================================================
+-- 4. DEMO LOGIN USER
+-- ============================================================
+-- Staff ID : BEL001
+-- Password : 01011990
+-- ============================================================
+
+INSERT INTO users
+(
+    staff_id,
+    full_name,
+    password_value,
+    is_active
+)
+VALUES
+(
+    'BEL001',
+    'Demo Staff',
+    '01011990',
+    1
+);
+
+
+-- ============================================================
+-- 5. ASSETS TABLE
+-- ============================================================
+-- FIELD ORDER
+--
+-- 1.  Staff ID
+-- 2.  Cost Center
+-- 3.  Asset Number
+-- 4.  Asset Type
+-- 5.  Make
+-- 6.  Model
+-- 7.  Serial Number
+-- 8.  MAC Address
+-- 9.  IP Address
+-- 10. Hostname
+-- 11. Domain Name
+-- 12. RAM
+-- 13. Hard Disk
+-- 14. Hard Disk Used
+-- 15. Operating System
+-- 16. Year of Manufacture
+-- 17. Type of Network
+-- 18. Warranty
+-- 19. Zone
+-- 20. Location
+-- 21. Asset Used By
+-- ============================================================
+
+CREATE TABLE assets
+(
+    -- 1. Staff ID
+    staff_id VARCHAR(50) NOT NULL,
+
+    -- 2. Cost Center
+    cost_center VARCHAR(50) NOT NULL,
+
+    -- 3. Asset Number
+    asset_number VARCHAR(50) NOT NULL,
+
+    -- 4. Asset Type
+    asset_type VARCHAR(100) NOT NULL,
+
+    -- 5. Make
+    make VARCHAR(100) DEFAULT NULL,
+
+    -- 6. Model
+    model VARCHAR(100) DEFAULT NULL,
+
+    -- 7. Serial Number
+    serial_no VARCHAR(100) DEFAULT NULL,
+
+    -- 8. MAC Address
+    mac_address VARCHAR(17) NOT NULL,
+
+    -- 9. IP Address
+    ip_address VARCHAR(45) DEFAULT NULL,
+
+    -- 10. Hostname
+    hostname VARCHAR(100) NOT NULL,
+
+    -- 11. Domain Name
+    domainname VARCHAR(150) NOT NULL,
+
+    -- 12. RAM
+    ram VARCHAR(50) DEFAULT NULL,
+
+    -- 13. Hard Disk
+    hard_disk VARCHAR(50) DEFAULT NULL,
+
+    -- 14. Hard Disk Used
+    hard_disk_used VARCHAR(50) DEFAULT NULL,
+
+    -- 15. Operating System
+    operating_system VARCHAR(100) NOT NULL,
+
+    -- 16. Year of Manufacture
+    year_of_manufacture YEAR NOT NULL,
+
+    -- 17. Type of Network
+    network_type VARCHAR(30) NOT NULL,
+
+    -- 18. Warranty
+    warranty ENUM('Yes','No') NOT NULL,
+
+    -- 19. Zone
+    zone VARCHAR(100) NOT NULL,
+
+    -- 20. Location
+    location VARCHAR(150) NOT NULL,
+
+    -- 21. Asset Used By
+    asset_used_by VARCHAR(50) NOT NULL,
+
+    -- ========================================================
+    -- SYSTEM / AUDIT FIELDS
+    -- ========================================================
+
+    declared_by VARCHAR(50) DEFAULT NULL,
+
+    updated_by VARCHAR(50) DEFAULT NULL,
+
+    created_at TIMESTAMP NOT NULL
+        DEFAULT CURRENT_TIMESTAMP,
+
+    -- ========================================================
+    -- PRIMARY KEY
+    -- ========================================================
+
+    PRIMARY KEY (mac_address),
+
+    -- ========================================================
+    -- UNIQUE ASSET NUMBER
+    -- ========================================================
+
+    UNIQUE KEY uq_asset_number (asset_number),
+
+    -- ========================================================
+    -- INDEXES
+    -- ========================================================
+
+    INDEX idx_staff_id (staff_id),
+
+    INDEX idx_cost_center (cost_center),
+
+    INDEX idx_asset_type (asset_type),
+
+    INDEX idx_serial_no (serial_no),
+
+    INDEX idx_hostname (hostname),
+
+    INDEX idx_ip_address (ip_address),
+
+    INDEX idx_zone (zone),
+
+    INDEX idx_location (location),
+
+    -- ========================================================
+    -- FOREIGN KEY: STAFF ID
+    -- ========================================================
+
+    CONSTRAINT fk_assets_staff_id
+        FOREIGN KEY (staff_id)
+        REFERENCES users(staff_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    -- ========================================================
+    -- FOREIGN KEY: DECLARED BY
+    -- ========================================================
+
+    CONSTRAINT fk_assets_declared_by
+        FOREIGN KEY (declared_by)
+        REFERENCES users(staff_id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL,
+
+    -- ========================================================
+    -- FOREIGN KEY: UPDATED BY
+    -- ========================================================
+
+    CONSTRAINT fk_assets_updated_by
+        FOREIGN KEY (updated_by)
+        REFERENCES users(staff_id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+
+)
+ENGINE=INNODB
+DEFAULT CHARACTER SET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+
+-- ============================================================
+-- 6. SAMPLE ASSET
+-- ============================================================
+
+INSERT INTO assets
+(
+    staff_id,
+    cost_center,
+    asset_number,
+    asset_type,
+    make,
+    model,
+    serial_no,
+    mac_address,
+    ip_address,
+    hostname,
+    domainname,
+    ram,
+    hard_disk,
+    hard_disk_used,
+    operating_system,
+    year_of_manufacture,
+    network_type,
+    warranty,
+    zone,
+    location,
+    asset_used_by,
+    declared_by
+)
+VALUES
+(
+    'BEL001',
+    'CC001',
+    'AST001',
+    'Desktop PC - Standard',
+    'Dell',
+    'OptiPlex',
+    'DEMO123',
+    '00:11:22:33:44:55',
+    '192.168.1.10',
+    'BEL-PC-001',
+    'bel.local',
+    '16',
+    '512',
+    '200',
+    'Windows 11',
+    2024,
+    'Intranet',
+    'Yes',
+    'Zone A',
+    'BEL Office',
+    'Self',
+    'BEL001'
+);
+
+
+-- ============================================================
+-- 7. VERIFY DATABASE
+-- ============================================================
+
+SELECT DATABASE();
+
+
+-- ============================================================
+-- 8. SHOW TABLES
+-- ============================================================
+
+SHOW TABLES;
+
+
+-- ============================================================
+-- 9. CHECK USERS TABLE
+-- ============================================================
+
+SELECT
+    staff_id,
+    full_name,
+    password_value,
+    is_active,
+    created_at
+FROM users;
+
+
+-- ============================================================
+-- 10. CHECK ASSETS TABLE
+-- ============================================================
+
+SELECT
+    staff_id,
+    cost_center,
+    asset_number,
+    asset_type,
+    make,
+    model,
+    serial_no,
+    mac_address,
+    ip_address,
+    hostname,
+    domainname,
+    ram,
+    hard_disk,
+    hard_disk_used,
+    operating_system,
+    year_of_manufacture,
+    network_type,
+    warranty,
+    zone,
+    location,
+    asset_used_by,
+    declared_by,
+    updated_by,
+    created_at
+FROM assets;
+
+
+-- ============================================================
+-- 11. CHECK TABLE STRUCTURE
+-- ============================================================
+
+DESCRIBE users;
+
+DESCRIBE assets;
+
+
+-- ============================================================
+-- 12. ASSET TYPE VALUES USED BY APPLICATION
+-- ============================================================
+--
+-- Desktop PC
+--     High End
+--     Standard
+--
+-- Laptop
+--     High
+--     Standard
+--     Medium
+--
+-- Workstation
+--     High
+--     Standard
+--     Medium
+--
+-- Others
+--     Printer
+--     Scanner
+--     Server
+--     Others
+-- ============================================================
+
+
+-- ============================================================
+-- 13. OPERATING SYSTEM VALUES USED BY APPLICATION
+-- ============================================================
+--
+-- Windows 11
+-- Windows 12
+-- Windows Server 2012
+-- Windows Server 2016
+-- Windows Server 2019
+-- Windows Server 2022
+-- Thin OS
+-- ============================================================
+
+
+-- ============================================================
+-- 14. NETWORK TYPE VALUES USED BY APPLICATION
+-- ============================================================
+--
+-- Internet
+-- Intranet
+-- Standalone
+-- ============================================================
+
+
+-- ============================================================
+-- 15. WARRANTY VALUES USED BY APPLICATION
+-- ============================================================
+--
+-- Yes
+-- No
+-- ============================================================
